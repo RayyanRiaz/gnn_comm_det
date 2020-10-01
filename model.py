@@ -7,7 +7,6 @@ from torch_geometric.utils import negative_sampling
 from torch_scatter import scatter_mean
 
 EPS = 1e-15
-MAX_LOGSTD = 10
 
 
 class SimpleEncoder(nn.Module):
@@ -28,7 +27,6 @@ class Encoder(nn.Module):
         self.conv_logvar = GCNConv(2 * out_channels, out_channels, cached=True)
 
     def forward(self, x, edge_index):
-        # return x.matmul(self.mu), x.matmul(self.logvar)
         x = F.leaky_relu(self.conv1(x, edge_index))
         return self.conv_mu(x, edge_index), self.conv_logvar(x, edge_index)
 
@@ -47,7 +45,6 @@ class InnerProductDecoder(torch.nn.Module):
                            torch.sigmoid(weights["vcz"] * v_cz)
                    ) / 2
         else:
-            # raise Exception("How did you land here? :O")
             value = (z[edge_index[0]] * z[edge_index[1]]).sum(dim=1)
             return torch.sigmoid(value) if sigmoid else value
 
