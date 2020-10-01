@@ -1,0 +1,5 @@
+pred
+gt
+*.pdf
+runs/*
+__pycache__
