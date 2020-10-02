@@ -10,7 +10,7 @@ from helpers import scores, Scores, kv_to_print_str, matrix_to_cnl_format
 from model import Model, InnerProductDecoder, SimpleEncoder, Encoder
 
 warnings.filterwarnings("ignore")
-print("Warnings Ignored")
+
 ##################
 
 dataset_name = LargeDataset.DBLP
@@ -103,6 +103,9 @@ def train(train_type):
 
 
 for epoch in range(1, 10001):
+    if epoch % 50 == 0 and epoch < 800:
+        print("pretraining... Epoch: {}".format(epoch))
+
     if epoch < 400:
         tt = 0
     elif epoch < 800:
@@ -112,7 +115,7 @@ for epoch in range(1, 10001):
 
     l_recon, l_kl_z, l_kl_c = train(tt)
 
-    if epoch % 50 == 0:
+    if epoch % 10 == 0 and epoch > 800:
         model.eval()
 
         _, qc_given_ZA = model.community_dists_probs(model.__mu__, train_pos_edge_index)

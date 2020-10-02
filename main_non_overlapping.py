@@ -12,7 +12,6 @@ from helpers import predict_node_classification, scores, Scores, kv_to_print_str
 from model import Model, InnerProductDecoder, SimpleEncoder
 
 warnings.filterwarnings("ignore")
-print("Warnings Ignored")
 ##################
 
 # dataset_name = PlanetoidDataset.Cora
