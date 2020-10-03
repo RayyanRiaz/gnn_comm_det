@@ -24,8 +24,14 @@ class CitationFullDataset(Enum):
     CiteSeer = "CiteSeer"
 
 
-class SnapDataset(Enum):
-    EgoFacebook = "ego-facebook"
+class FacebookDataset(Enum):
+    EgoFacebook0 = "ego-facebook0"
+    EgoFacebook107 = "ego-facebook107"
+    EgoFacebook1912 = "ego-facebook1912"
+    EgoFacebook3437 = "ego-facebook3437"
+    EgoFacebook348 = "ego-facebook348"
+    EgoFacebook414 = "ego-facebook414"
+    EgoFacebook698 = "ego-facebook698"
 
 
 class LargeDataset(Enum):
@@ -46,26 +52,21 @@ def load_non_overlapping_dataset(dataset_name: PlanetoidDataset or CitationFullD
     return data
 
 
-def load_overlapping_dataset(dataset_name: SnapDataset, allow_features=True, data_idx=None) -> Data:
-    path = osp.join(DATASETS_DIR, dataset_name.value)
+def load_facebook_dataset(dataset_name: FacebookDataset, allow_features=True) -> Data:
+    path = osp.join(DATASETS_DIR, dataset_name.value[:12])
+    facebook_idx_map = {"0": 0, "107": 1, "1684": 2, "1912": 3, "3437": 4, "348": 5, "3980": 6, "414": 7, "686": 8, "698": 9, }
+    data = SNAPDataset(path, dataset_name.value[:12], T.NormalizeFeatures())
 
-    if type(dataset_name) == SnapDataset:
-        data = SNAPDataset(path, dataset_name.value, T.NormalizeFeatures())
-    else:
-        raise Exception("Unknown dataset name")
-
-    if data_idx is not None:
-        data = data[data_idx]
+    data = data[facebook_idx_map[dataset_name.value[12:]]]
 
     if not allow_features:
         data.x = torch.eye(data.x.size(0))
 
-    if type(dataset_name) == SnapDataset:
-        data.num_communities = data.circle_batch.max() + 1
-        communities = np.zeros((data.num_communities, data.x.size(0)))
-        communities[data.circle_batch, data.circle] = 1
-        data.communities = communities
-        data.communities_cnl_format = matrix_to_cnl_format(communities, data.num_communities)
+    data.num_communities = data.circle_batch.max() + 1
+    communities = np.zeros((data.num_communities, data.x.size(0)))
+    communities[data.circle_batch, data.circle] = 1
+    data.communities = communities
+    data.communities_cnl_format = matrix_to_cnl_format(communities, data.num_communities)
 
     return data
 

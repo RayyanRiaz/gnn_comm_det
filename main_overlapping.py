@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from torch.distributions import kl_divergence
 from torch_geometric.utils import *
 
-from dataset_loaders import load_overlapping_dataset, SnapDataset, load_large_dataset, LargeDataset
+from dataset_loaders import load_facebook_dataset, FacebookDataset, load_large_dataset, LargeDataset
 from helpers import scores, Scores, kv_to_print_str, matrix_to_cnl_format
 from model import Model, InnerProductDecoder, SimpleEncoder, Encoder
 
@@ -14,8 +14,7 @@ warnings.filterwarnings("ignore")
 ##################
 
 dataset_name = LargeDataset.DBLP
-dataset_name = SnapDataset.EgoFacebook
-data_idx = 0
+dataset_name = FacebookDataset.EgoFacebook3437
 
 channels = 16
 allow_features = False
@@ -24,8 +23,8 @@ community_pred_threshold = 0.3
 dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 #############################
-if type(dataset_name) is SnapDataset:
-    data = load_overlapping_dataset(dataset_name=dataset_name, data_idx=data_idx, allow_features=allow_features)
+if type(dataset_name) is FacebookDataset:
+    data = load_facebook_dataset(dataset_name=dataset_name, allow_features=allow_features)
 elif type(dataset_name) is LargeDataset:
     data = load_large_dataset(dataset_name=dataset_name)
 
@@ -45,9 +44,6 @@ decoder = InnerProductDecoder()
 
 model = Model(x.size(1), channels, num_communities, 0.9, encoder=encoder, decoder=decoder).to(dev)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
-
-print(dataset_name)
-print(data.num_nodes)
 
 def train(train_type):
     if train_type == 0:  # simple VGAE trained
@@ -132,5 +128,4 @@ for epoch in range(1, 10001):
             print_down=False, match_labels=False, communities_cnl=communities_cnl_format, communities_cnl_pred=pre_cnl_format
         )
 
-        print("Epoch: {}\t L_KLZ: {:.4f}\t L_KLC: {:.4f}\t L_X: {:.4f}\t".format(
-            epoch, l_kl_z, l_kl_c, l_recon) + kv_to_print_str(metrics))
+        print("Epoch: {}\t".format(epoch) + kv_to_print_str(metrics))

@@ -7,7 +7,7 @@ import torch.nn.functional as F
 from torch.distributions import kl_divergence
 from torch_geometric.utils import *
 
-from dataset_loaders import load_non_overlapping_dataset, CitationFullDataset
+from dataset_loaders import load_non_overlapping_dataset, CitationFullDataset, PlanetoidDataset
 from helpers import predict_node_classification, scores, Scores, kv_to_print_str
 from model import Model, InnerProductDecoder, SimpleEncoder
 
@@ -135,8 +135,4 @@ for epoch in range(1, 10001):
                 match_labels=True, print_down=False, edges=edges, edges_pred=edges_pred, communities=communities,
                 communities_pred=communities_pred, node_classes=node_classes, node_classes_pred=node_classes_pred)
 
-            print("Epoch: {:4d}\tLR: {:.4f}\tLZ: {:.4f}\tLC: {:.4f}\t".format(epoch, l_recon, l_kl_z, l_kl_c) + kv_to_print_str(metrics))
-
-            with open("log.txt", "a") as f:
-                print("========{}========".format(dataset_name.value), file=f)
-                print("Epoch {:4d}: ||".format(epoch) + kv_to_print_str(metrics), file=f)
+            print("Epoch: {:4d}\t".format(epoch) + kv_to_print_str(metrics))
